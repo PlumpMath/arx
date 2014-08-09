@@ -7,10 +7,8 @@
   (q/ellipse 400 500 400 500))
 
 
-(q/defsketch x
-  :title ""
-  :draw draw
-  :size [800 1000])
-
-
-(defn -main [])
+(defn -main []
+  (q/defsketch x
+    :title ""
+    :draw draw
+    :size [800 1000]))

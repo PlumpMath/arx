@@ -1,4 +1,4 @@
-(defproject arx "0.0.0"
+(defproject eigenhombre/arx "0.0.0"
   :description "Experiments in 3d design."
   :url "https://github.com/eigenhombre/arx/"
   :main arx.core
