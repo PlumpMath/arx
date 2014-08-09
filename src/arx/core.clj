@@ -3,4 +3,4 @@
 
 
 (defn -main []
-  (println "The future is now."))
+  (println "The future is ... now."))
