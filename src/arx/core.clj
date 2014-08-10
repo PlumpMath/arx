@@ -1,33 +1,33 @@
 (ns arx.core
   (:gen-class)
-  (:require [quil.core :as q]))
+  (:require [quil.core :as q]
+            [arx.geom :refer [square-lines]]))
 
 
-(defn num-deltas [a b]
-  (apply + (for [coord (range 3)
-                 :when (not= (Math/abs (- (get a coord)
-                                          (get b coord)))
-                             0)]
-             1)))
+(defn setup []
+  (q/set-state! :rotation 0
+                :paused false))
 
 
-(defn square-lines []
-  (let [corners (for [x [-100 200]
-                      y [-100 200]
-                      z [-100 200]]
-                  [x y z])]
-    (for [c1 corners
-          c2 corners
-          :when (and (not= c1 c2)
-                     (= (num-deltas c1 c2) 1))]
-      (concat c1 c2))))
+(defn toggle-paused []
+  (swap! (q/state-atom) update-in [:paused] not))
+
+
+(defn paused [] (:paused (q/state)))
+(defn rotation [] (:rotation (q/state)))
+(defn update-rotation [] (swap! (q/state-atom) update-in [:rotation] inc))
+
+
+(defn key-press []
+  (toggle-paused))
 
 
 (defn draw []
+  (if-not (paused) (update-rotation))
   (q/background 200)
   (q/translate (/ (q/width) 2) (/ (q/height) 2) 0)
-  (q/rotate-y (* (q/frame-count) 0.03))
-  (q/rotate-x (* (q/frame-count) 0.04))
+  (q/rotate-y (* (rotation) 0.01))
+  (q/rotate-x (* (rotation) 0.02))
   (doall (map (partial apply q/line)
               (square-lines))))
 
@@ -35,6 +35,8 @@
 (defn -main []
   (q/defsketch x
     :title ""
+    :setup setup
     :draw draw
     :size [800 1000]
+    :key-typed key-press
     :renderer :opengl))  ;; <- translate origin works
