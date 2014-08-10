@@ -24,10 +24,10 @@
 
 
 (defn draw []
+  (q/background 200)
   (q/translate (/ (q/width) 2) (/ (q/height) 2) 0)
   (q/rotate-y (* (q/frame-count) 0.03))
   (q/rotate-x (* (q/frame-count) 0.04))
-  (q/ellipse -300 -300 400 500)
   (doall (map (partial apply q/line)
               (square-lines))))
 
