@@ -22,12 +22,26 @@
   (toggle-paused))
 
 
+(defn draw-axes []
+  (let [inf 100000]
+    (q/stroke 255 0 0)
+    (q/line 0 0 0 inf 0 0)
+    (q/stroke 0 255 0)
+    (q/line 0 0 0 0 inf 0)
+    (q/stroke 0 0 255)
+    (q/line 0 0 0 0 0 inf)
+    (q/stroke 0)))
+
+
 (defn draw []
   (if-not (paused) (update-rotation))
   (q/background 200)
   (q/translate (/ (q/width) 2) (/ (q/height) 2) 0)
   (q/rotate-y (* (rotation) 0.01))
   (q/rotate-x (* (rotation) 0.02))
+  ;(q/sphere 100)
+  (draw-axes)
+  (q/box 50)
   (doall (map (partial apply q/line)
               (square-lines))))
 
