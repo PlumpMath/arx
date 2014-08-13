@@ -15,7 +15,7 @@
 
 (defn paused [] (:paused (q/state)))
 (defn rotation [] (:rotation (q/state)))
-(defn update-rotation [] (swap! (q/state-atom) update-in [:rotation] inc))
+(defn update-rotation [] (swap! (q/state-atom) update-in [:rotation] dec))
 
 
 (defn key-press []
@@ -24,10 +24,13 @@
 
 (defn draw-axes []
   (let [inf 100000]
+    ;; x
     (q/stroke 255 0 0)
     (q/line 0 0 0 inf 0 0)
+    ;; y
     (q/stroke 0 255 0)
     (q/line 0 0 0 0 inf 0)
+    ;; z
     (q/stroke 0 0 255)
     (q/line 0 0 0 0 0 inf)
     (q/stroke 0)))
@@ -37,9 +40,11 @@
   (if-not (paused) (update-rotation))
   (q/background 200)
   (q/translate (/ (q/width) 2) (/ (q/height) 2) 0)
-  (q/rotate-y (* (rotation) 0.01))
-  (q/rotate-x (* (rotation) 0.02))
-  ;(q/sphere 100)
+  (q/camera (* 1000 (Math/cos (/ (rotation) 100)))
+            (* 1000 (Math/sin (/ (rotation) 100)))
+            (+ 1000 (* 200 (Math/sin (/ (rotation) 300))))
+            0 0 0
+            0 0 -1)
   (draw-axes)
   (q/box 50)
   (doall (map (partial apply q/line)
