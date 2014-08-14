@@ -5,7 +5,8 @@
 
 
 (defn setup []
-  (q/set-state! :rotation 0
+  (q/set-state! :phi 0
+                :theta (q/radians 45)
                 :paused false))
 
 
@@ -14,8 +15,10 @@
 
 
 (defn paused [] (:paused (q/state)))
-(defn rotation [] (:rotation (q/state)))
-(defn update-rotation [] (swap! (q/state-atom) update-in [:rotation] dec))
+(defn phi [] (:phi (q/state)))
+(defn theta [] (:theta (q/state)))
+(defn update-rotation []
+  (swap! (q/state-atom) update-in [:phi] (partial + (q/radians 0.5))))
 
 
 (defn key-press []
@@ -40,15 +43,26 @@
   (if-not (paused) (update-rotation))
   (q/background 200)
   (q/translate (/ (q/width) 2) (/ (q/height) 2) 0)
-  (q/camera (* 1000 (Math/cos (/ (rotation) 100)))
-            (* 1000 (Math/sin (/ (rotation) 100)))
-            (+ 1000 (* 200 (Math/sin (/ (rotation) 300))))
+  (q/camera (* 1000 (Math/cos (phi)) (Math/sin (theta)))
+            (* 1000 (Math/sin (phi)) (Math/sin (theta)))
+            (* 1000 (Math/cos (theta)))
             0 0 0
             0 0 -1)
   (draw-axes)
   (q/box 50)
   (doall (map (partial apply q/line)
               (square-lines))))
+
+
+(defn mouse-dragged []
+  (let [delx (- (q/mouse-x)
+                (q/pmouse-x))
+        mdx (/ delx 3)
+        dely (- (q/pmouse-y)
+                (q/mouse-y))
+        mdy (/ dely 3)]
+    (swap! (q/state-atom) update-in [:phi] (partial + (q/radians mdx)))
+    (swap! (q/state-atom) update-in [:theta] (partial + (q/radians mdy)))))
 
 
 (defn -main []
@@ -58,4 +72,5 @@
     :draw draw
     :size [800 1000]
     :key-typed key-press
-    :renderer :opengl))  ;; <- translate origin works
+    :mouse-dragged mouse-dragged
+    :renderer :opengl))
