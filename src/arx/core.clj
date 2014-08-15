@@ -11,6 +11,9 @@
                 :paused false))
 
 
+(def boxes (atom nil))
+
+
 (defn toggle-paused []
   (swap! (q/state-atom) update-in [:paused] not))
 
@@ -25,7 +28,9 @@
 
 
 (defn key-press []
-  (toggle-paused))
+  (if (= (q/raw-key) \c)
+    (reset! boxes nil)
+    (toggle-paused)))
 
 
 (defn draw-axes []
@@ -42,19 +47,39 @@
     (q/stroke 0)))
 
 
+(defn add-random-box []
+  (let [width 1000
+        r (* (Math/log (- 1 (q/random 1))) (- width))
+        phi (q/random q/TWO-PI)
+        x (* r (Math/cos phi))
+        y (* r (Math/sin phi))
+        zeta (q/random q/TWO-PI)
+        size (q/random 200)]
+    (swap! boxes conj [x y size zeta])))
+
+
+(defn draw-boxes []
+  (doseq [[x y l zeta] @boxes]
+    (q/push-matrix)
+    (q/translate x y (/ l 2))
+    (q/rotate-z zeta)
+    (q/box l)
+    (q/pop-matrix)))
+
+
 (defn draw []
-  (if-not (paused) (update-rotation))
   (q/background 200)
-  (q/translate (/ (q/width) 2) (/ (q/height) 2) 0)
+  (draw-axes)
+  (when-not (paused)
+    (update-rotation)
+    (when (< (q/random 1) 0.1)
+      (add-random-box)))
   (q/camera (* (r) (Math/cos (phi)) (Math/sin (theta)))
             (* (r) (Math/sin (phi)) (Math/sin (theta)))
             (* (r) (Math/cos (theta)))
             0 0 0
             0 0 -1)
-  (draw-axes)
-  (q/box 50)
-  (doall (map (partial apply q/line)
-              (square-lines))))
+  (draw-boxes))
 
 
 (defn mouse-dragged []
@@ -77,7 +102,7 @@
     :title ""
     :setup setup
     :draw draw
-    :size [800 1000]
+    :size [1600 1000]
     :key-typed key-press
     :mouse-dragged mouse-dragged
     :mouse-wheel mouse-wheel
