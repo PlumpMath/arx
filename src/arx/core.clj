@@ -94,7 +94,11 @@
 
 
 (defn mouse-wheel [amount]
-  (swap! (q/state-atom) update-in [:r] #(max 1 (+ % (* 7 amount)))))
+  (swap! (q/state-atom) update-in [:r] #(max 1 (+ % (* 7 amount))))
+  (q/perspective q/THIRD-PI
+                 (/ (q/width) (q/height))
+                 (/ (:r (q/state)) 10.0)
+                 (* (:r (q/state)) 100.0)))
 
 
 (defn -main []
