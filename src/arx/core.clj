@@ -6,6 +6,7 @@
 
 (defn setup []
   (q/set-state! :phi 0
+                :r 1000
                 :theta (q/radians 45)
                 :paused false))
 
@@ -17,6 +18,8 @@
 (defn paused [] (:paused (q/state)))
 (defn phi [] (:phi (q/state)))
 (defn theta [] (:theta (q/state)))
+(defn r [] (:r (q/state)))
+
 (defn update-rotation []
   (swap! (q/state-atom) update-in [:phi] (partial + (q/radians 0.5))))
 
@@ -43,9 +46,9 @@
   (if-not (paused) (update-rotation))
   (q/background 200)
   (q/translate (/ (q/width) 2) (/ (q/height) 2) 0)
-  (q/camera (* 1000 (Math/cos (phi)) (Math/sin (theta)))
-            (* 1000 (Math/sin (phi)) (Math/sin (theta)))
-            (* 1000 (Math/cos (theta)))
+  (q/camera (* (r) (Math/cos (phi)) (Math/sin (theta)))
+            (* (r) (Math/sin (phi)) (Math/sin (theta)))
+            (* (r) (Math/cos (theta)))
             0 0 0
             0 0 -1)
   (draw-axes)
@@ -65,6 +68,10 @@
     (swap! (q/state-atom) update-in [:theta] (partial + (q/radians mdy)))))
 
 
+(defn mouse-wheel [amount]
+  (swap! (q/state-atom) update-in [:r] #(max 1 (+ % (* 7 amount)))))
+
+
 (defn -main []
   (q/defsketch x
     :title ""
@@ -73,4 +80,5 @@
     :size [800 1000]
     :key-typed key-press
     :mouse-dragged mouse-dragged
+    :mouse-wheel mouse-wheel
     :renderer :opengl))
