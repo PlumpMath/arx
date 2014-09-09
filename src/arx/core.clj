@@ -1,7 +1,7 @@
 (ns arx.core
   (:gen-class)
   (:require [quil.core :as q]
-            [arx.geom :refer [square-lines]]))
+            [arx.geom :as g]))
 
 
 (defn setup []
@@ -13,9 +13,6 @@
                 :theta (q/radians 75)
                 :target-theta (q/radians 75)
                 :paused false))
-
-
-(def boxes (atom nil))
 
 
 (defn toggle-paused []
@@ -42,7 +39,8 @@
 (defn update-camera []
   (update :phi (partial + (q/radians 0.10)))
   (update :t inc)
-  (assign :target-r (+ 4000 (* 2000 (Math/sin (* 0.001 (getk :t))))))
+  (assign :target-r (+ 4000
+                       (* 2000 (Math/sin (* 0.001 (getk :t))))))
   (assign :target-theta (+ (q/radians 65) (* (q/radians 10)
                                              (Math/sin (* 0.005 (getk :t))))))
   (let [del-theta (* 0.01 (- (getk :target-theta) (getk :theta)))
@@ -53,7 +51,7 @@
 
 (defn key-press []
   (if (= (q/raw-key) \c)
-    (reset! boxes nil)
+    (g/reset-boxes)
     (toggle-paused)))
 
 
@@ -71,33 +69,8 @@
     (q/stroke 0)))
 
 
-(defn add-box [width min-base max-base min-height max-height]
-  (let [r (* (Math/log (- 1 (q/random 1))) (- width))
-        phi (q/random q/TWO-PI)
-        x (* r (Math/cos phi))
-        y (* r (Math/sin phi))
-        zeta (q/random q/TWO-PI)
-        base (q/random min-base max-base)
-        height (q/random min-height max-height)]
-    (swap! boxes conj [x y base height zeta])))
-
-
-(defn add-wide-box []
-  (add-box 1000 0 400 0 100))
-
-
-(defn add-narrow-box []
-  (add-box 4000 100 150 600 700))
-
-
-(defn add-either-box []
-  (if (< (q/random 1) 0.04)
-    (add-narrow-box)
-    (add-wide-box)))
-
-
 (defn draw-boxes []
-  (doseq [[x y base height zeta] @boxes]
+  (doseq [[x y base height zeta] (g/box-seq)]
     (q/push-matrix)
     (q/translate x y (/ height 2))
     (q/rotate-z zeta)
@@ -118,9 +91,7 @@
   (when-not (paused)
     (update-camera)
     (update-perspective)
-    (while (or (< (count @boxes) 1000)
-               (< (q/random 1) 0.03))
-      (add-either-box)))
+    (g/add-enough-boxes))
   (q/camera (* (r) (Math/cos (phi)) (Math/sin (theta)))
             (* (r) (Math/sin (phi)) (Math/sin (theta)))
             (* (r) (Math/cos (theta)))
