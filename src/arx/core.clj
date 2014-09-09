@@ -4,17 +4,6 @@
             [arx.geom :as g]))
 
 
-(defn setup []
-  (q/set-state! :t 0
-                :phi 0
-                :target-phi 0
-                :r 4000
-                :target-r 4000
-                :theta (q/radians 75)
-                :target-theta (q/radians 75)
-                :paused false))
-
-
 (defn toggle-paused []
   (swap! (q/state-atom) update-in [:paused] not))
 
@@ -34,19 +23,6 @@
 
 
 (defn getk [kw] (get @(q/state-atom) kw))
-
-
-(defn update-camera []
-  (update :phi (partial + (q/radians 0.10)))
-  (update :t inc)
-  (assign :target-r (+ 4000
-                       (* 2000 (Math/sin (* 0.001 (getk :t))))))
-  (assign :target-theta (+ (q/radians 65) (* (q/radians 10)
-                                             (Math/sin (* 0.005 (getk :t))))))
-  (let [del-theta (* 0.01 (- (getk :target-theta) (getk :theta)))
-        del-r (* 0.005 (- (getk :target-r) (getk :r)))]
-    (swap! (q/state-atom) update-in [:theta] (partial + del-theta))
-    (swap! (q/state-atom) update-in [:r] (partial + del-r))))
 
 
 (defn key-press []
@@ -88,10 +64,7 @@
   (q/lights)
   (q/background 200)
   (draw-axes)
-  (when-not (paused)
-    (update-camera)
-    (update-perspective)
-    (g/add-enough-boxes))
+  (update-perspective)
   (q/camera (* (r) (Math/cos (phi)) (Math/sin (theta)))
             (* (r) (Math/sin (phi)) (Math/sin (theta)))
             (* (r) (Math/cos (theta)))
@@ -114,6 +87,35 @@
 (defn mouse-wheel [amount]
   (swap! (q/state-atom) update-in [:r] #(max 1 (+ % (* 7 amount))))
   (update-perspective))
+
+
+(defn update-camera []
+  (update :phi (partial + (q/radians 0.10)))
+  (assign :target-r (+ 4000
+                       (* 2000 (Math/sin (* 0.0001 (getk :t))))))
+  (assign :target-theta (+ (q/radians 65) (* (q/radians 10)
+                                             (Math/sin (* 0.0005 (getk :t))))))
+  (let [del-theta (* 0.01 (- (getk :target-theta) (getk :theta)))
+        del-r (* 0.005 (- (getk :target-r) (getk :r)))]
+    (swap! (q/state-atom) update-in [:theta] (partial + del-theta))
+    (swap! (q/state-atom) update-in [:r] (partial + del-r))))
+
+
+(defn setup []
+  (q/set-state! :phi 0
+                :target-phi 0
+                :r 4000
+                :target-r 4000
+                :theta (q/radians 75)
+                :target-theta (q/radians 75)
+                :paused false)
+  (let [t0 (System/currentTimeMillis)]
+    (future (while true
+              (assign :t (- (System/currentTimeMillis) t0))
+              (when-not (paused)
+                (update-camera))
+              (g/add-enough-boxes)
+              (Thread/sleep 30)))))
 
 
 (defn -main []
