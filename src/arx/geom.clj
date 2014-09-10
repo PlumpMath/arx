@@ -62,14 +62,19 @@
 (defn box-seq [] @boxes)
 
 
+(defn vertex-values [] (into []
+                             (take 100
+                                   (repeatedly (fn []
+                                                 [(- (rand-int 2000) 1000)
+                                                  (- (rand-int 2000) 1000)
+                                                  (+ (rand-int 10000) 500)])))))
+
+
 (def vertex-atom
-  (atom
-    (into []
-          (take 100
-                (repeatedly (fn []
-                              [(- (rand-int 2000) 1000)
-                               (- (rand-int 2000) 1000)
-                               (+ (rand-int 10000) 500)]))))))
+  (atom (vertex-values)))
 
 
 (defn vertices [] @vertex-atom)
+
+
+(defn reset-vertices [] (reset! vertex-atom (vertex-values)))
