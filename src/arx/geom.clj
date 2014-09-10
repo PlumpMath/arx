@@ -60,3 +60,16 @@
 
 
 (defn box-seq [] @boxes)
+
+
+(def vertex-atom
+  (atom
+    (into []
+          (take 100
+                (repeatedly (fn []
+                              [(- (rand-int 2000) 1000)
+                               (- (rand-int 2000) 1000)
+                               (+ (rand-int 10000) 500)]))))))
+
+
+(defn vertices [] @vertex-atom)

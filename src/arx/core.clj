@@ -1,8 +1,11 @@
 (ns arx.core
   (:gen-class)
   (:require [quil.core :as q]
+            [quil.applet :as app]
             [arx.geom :as g]))
 
+
+app/*applet*
 
 (defn toggle-paused []
   (swap! (q/state-atom) update-in [:paused] not))
@@ -27,7 +30,8 @@
 
 (defn key-press []
   (if (= (q/raw-key) \c)
-    (g/reset-boxes)
+    (do (g/reset-boxes)
+        (g/reset-vertices))
     (toggle-paused)))
 
 
@@ -70,7 +74,28 @@
             (* (r) (Math/cos (theta)))
             0 0 0
             0 0 -1)
-  (draw-boxes))
+  (draw-boxes)
+  (q/begin-shape)
+  (q/vertex -800, -800, 0)
+  (q/vertex  800, -800, 00)
+  (q/vertex    0,    0,  800)
+
+  (q/vertex  800, -800, 0)
+  (q/vertex  800,  800, 0)
+  (q/vertex    0,    0,  800)
+
+  (q/vertex  800, 800, 0)
+  (q/vertex -800, 800, 0)
+  (q/vertex    0,   0,  800)
+
+  (q/vertex -800,  800, 0)
+  (q/vertex -800, -800, 0)
+  (q/vertex    0,    0,  800)
+  (q/end-shape)
+  (q/begin-shape)
+  (doseq [[x y z] (g/vertices)]
+    (q/vertex x y z))
+  (q/end-shape))
 
 
 (defn mouse-dragged []
