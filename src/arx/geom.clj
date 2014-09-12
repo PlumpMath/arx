@@ -29,7 +29,7 @@
 
 
 (defn add-box [width min-base max-base min-height max-height]
-  (let [r (* (Math/log (- 1 (q/random 1))) (- width))
+  (let [r (+ 1100 (* (Math/log (- 1 (q/random 1))) (- width)))
         phi (q/random q/TWO-PI)
         x (* r (Math/cos phi))
         y (* r (Math/sin phi))
@@ -65,9 +65,21 @@
 (defn vertex-values [] (into []
                              (take 100
                                    (repeatedly (fn []
-                                                 [(- (rand-int 2000) 1000)
-                                                  (- (rand-int 2000) 1000)
-                                                  (+ (rand-int 10000) 500)])))))
+                                                 (let [pi 3.1415927
+                                                       o [0 0 2000]
+                                                       r (rand 1000)
+                                                       th (rand pi)
+                                                       ph (rand (* pi 2))
+                                                       x (* r
+                                                            (Math/sin th)
+                                                            (Math/cos ph))
+                                                       y (* r
+                                                            (Math/sin th)
+                                                            (Math/sin ph))
+                                                       z (* r (Math/cos th))]
+                                                   [(+ x (nth o 0))
+                                                    (+ y (nth o 1))
+                                                    (+ z (nth o 2))]))))))
 
 
 (def vertex-atom

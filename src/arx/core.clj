@@ -2,7 +2,8 @@
   (:gen-class)
   (:require [quil.core :as q]
             [quil.applet :as app]
-            [arx.geom :as g]))
+            [arx.geom :as g]
+            [arx.pseudo-repl :refer [pseudo-repl pr-result]]))
 
 
 app/*applet*
@@ -64,6 +65,7 @@ app/*applet*
                  (/ (:r (q/state)) 10.0)
                  (* (:r (q/state)) 500.0)))
 
+
 (defn draw []
   (q/lights)
   (q/background 200)
@@ -116,8 +118,8 @@ app/*applet*
 
 (defn update-camera []
   (update :phi (partial + (q/radians 0.10)))
-  (assign :target-r (+ 4000
-                       (* 2000 (Math/sin (* 0.0001 (getk :t))))))
+  (assign :target-r (+ 5000
+                       (* 2000 (Math/sin (* 0.0002 (getk :t))))))
   (assign :target-theta (+ (q/radians 65) (* (q/radians 10)
                                              (Math/sin (* 0.0005 (getk :t))))))
   (let [del-theta (* 0.01 (- (getk :target-theta) (getk :theta)))
@@ -126,7 +128,15 @@ app/*applet*
     (swap! (q/state-atom) update-in [:r] (partial + del-r))))
 
 
+(defn make-window-resizeable []
+  (->
+   (app/current-applet)
+   .frame
+   (.setResizable true)))
+
+
 (defn setup []
+  (make-window-resizeable)
   (q/set-state! :phi 0
                 :target-phi 0
                 :r 4000
