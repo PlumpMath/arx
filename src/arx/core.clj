@@ -66,7 +66,12 @@ app/*applet*
                  (* (:r (q/state)) 500.0)))
 
 
-(defn make-window-resizeable []
+(defn make-window-resizeable
+  "
+  Allow window to be resizeable.  For some reason this causes the app
+  to hang frequently.
+  "
+  []
   (->
    (app/current-applet)
    .frame
@@ -74,7 +79,6 @@ app/*applet*
 
 
 (defn draw []
-  (make-window-resizeable)  ;; For some reason, this can't be in setup.
   (q/lights)
   (q/background 200)
   (draw-axes)
