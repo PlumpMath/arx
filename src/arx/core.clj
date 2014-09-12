@@ -3,7 +3,7 @@
   (:require [quil.core :as q]
             [quil.applet :as app]
             [arx.geom :as g]
-            [arx.pseudo-repl :refer [pseudo-repl pr-result]]))
+            [arx.util :refer [pseudo-repl pr-result]]))
 
 
 app/*applet*
@@ -66,7 +66,15 @@ app/*applet*
                  (* (:r (q/state)) 500.0)))
 
 
+(defn make-window-resizeable []
+  (->
+   (app/current-applet)
+   .frame
+   (.setResizable true)))
+
+
 (defn draw []
+  (make-window-resizeable)  ;; For some reason, this can't be in setup.
   (q/lights)
   (q/background 200)
   (draw-axes)
@@ -128,15 +136,7 @@ app/*applet*
     (swap! (q/state-atom) update-in [:r] (partial + del-r))))
 
 
-(defn make-window-resizeable []
-  (->
-   (app/current-applet)
-   .frame
-   (.setResizable true)))
-
-
 (defn setup []
-  (make-window-resizeable)
   (q/set-state! :phi 0
                 :target-phi 0
                 :r 4000

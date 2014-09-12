@@ -1,6 +1,8 @@
-(ns arx.pseudo-repl)
+(ns arx.util)
+
+
 ;; Stuff for evaluating things inside of `draw` or other Quil
-;; functions (i.e. when graphics context is required).
+;; functions (i.e. when graphics context is required):
 (def pseudo-repl-result (atom nil))
 
 
