@@ -6,8 +6,6 @@
             [arx.util :refer [pseudo-repl pr-result]]))
 
 
-app/*applet*
-
 (defn toggle-paused []
   (swap! (q/state-atom) update-in [:paused] not))
 
