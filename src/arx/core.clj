@@ -28,9 +28,10 @@
 
 
 (defn key-press []
-  (if (= (q/raw-key) \c)
-    (do (g/reset-boxes)
+  (condp = (q/raw-key)
+    \c (do (g/reset-boxes)
         (g/reset-vertices))
+    \s (g/toggle-sphere)
     (toggle-paused)))
 
 
@@ -107,7 +108,10 @@
   (q/begin-shape)
   (doseq [[x y z] (g/vertices)]
     (q/vertex x y z))
-  (q/end-shape))
+  (q/end-shape)
+
+  (if (g/do-sphere)
+    (q/sphere 10000)))
 
 
 (defn mouse-dragged []
