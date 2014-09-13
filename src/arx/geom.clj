@@ -90,3 +90,12 @@
 
 
 (defn reset-vertices [] (reset! vertex-atom (vertex-values)))
+
+
+(def do-sphere-atom (atom false))
+
+(defn toggle-sphere []
+  (swap! do-sphere-atom not))
+
+
+(defn do-sphere [] @do-sphere-atom)
