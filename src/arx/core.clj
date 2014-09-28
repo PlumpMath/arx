@@ -77,6 +77,53 @@
    (.setResizable true)))
 
 
+(defn draw-flat-shape [pointvals]
+  (q/begin-shape)
+  (doseq [[x y z] (partition 3 pointvals)]
+    (q/vertex x y z))
+  (q/end-shape))
+
+
+(defn draw-faces [faces]
+  (doseq [f faces]
+    (draw-flat-shape f)))
+
+(defn draw-pyramid []
+  (draw-faces [[-800 -800    0
+                 800 -800    0
+                   0    0  800]
+               [ 800 -800    0
+                 800  800    0
+                   0    0  800]
+               [ 800 800     0
+                -800 800     0
+                   0   0   800]
+               [-800  800    0
+                -800 -800    0
+                   0    0  800]]))
+
+
+(defn draw-wierd-vertices []
+  (draw-flat-shape (apply concat (g/vertices))))
+
+;; To do a cut-out:
+#_(pseudo-repl
+   (q/begin-shape)
+   (q/begin-contour)
+   (q/vertex 10 10 0)
+   (q/vertex 1000 10 0)
+   (q/vertex 1000 1000 0)
+   (q/vertex 10 1000 0)
+   (q/end-contour)
+   (q/begin-contour)
+   (q/vertex 250 250 0)
+   (q/vertex 350 250 0)
+   (q/vertex 350 750 0)
+   (q/vertex 250 750 0)
+   (q/end-contour)
+   (q/end-shape))
+
+
 (defn draw []
   (q/lights)
   (q/background 200)
@@ -88,27 +135,32 @@
             0 0 0
             0 0 -1)
   (draw-boxes)
-  (q/begin-shape)
-  (q/vertex -800, -800, 0)
-  (q/vertex  800, -800, 00)
-  (q/vertex    0,    0,  800)
-
-  (q/vertex  800, -800, 0)
-  (q/vertex  800,  800, 0)
-  (q/vertex    0,    0,  800)
-
-  (q/vertex  800, 800, 0)
-  (q/vertex -800, 800, 0)
-  (q/vertex    0,   0,  800)
-
-  (q/vertex -800,  800, 0)
-  (q/vertex -800, -800, 0)
-  (q/vertex    0,    0,  800)
-  (q/end-shape)
-  (q/begin-shape)
-  (doseq [[x y z] (g/vertices)]
-    (q/vertex x y z))
-  (q/end-shape)
+  (draw-wierd-vertices)
+  (draw-pyramid)
+  #_(draw-faces [[    0    0    0
+                    0 1000    0
+                 1000 1000    0
+                 1000    0    0]
+               [    0    0 1000
+                    0 1000 1000
+                 1000 1000 1000
+                 1000    0 1000]
+               [    0    0    0
+                    0    0 1000
+                    0 1000 1000
+                    0 1000    0]
+               [ 1000    0    0
+                 1000    0 1000
+                 1000 1000 1000
+                 1000 1000    0]
+               [    0    0    0
+                    0    0 1000
+                 1000    0 1000
+                 1000    0    0]
+               [    0 1000    0
+                    0 1000 1000
+                 1000 1000 1000
+                 1000 1000    0]])
 
   (if (g/do-sphere)
     (q/sphere 10000)))
