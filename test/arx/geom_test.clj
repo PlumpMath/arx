@@ -1,5 +1,5 @@
- (ns arx.geom-test
-(:require [midje.sweet :refer :all]
+(ns arx.geom-test
+  (:require [midje.sweet :refer :all]
             [clojure.core.matrix :as m]
             [clojure.core.matrix.operators :as o]))
 
@@ -9,7 +9,29 @@
 (defn path [& edges] (assert (< 2 (count edges))) edges)
 (defn path-points [p] (apply concat p))
 (defn face [outer & inners] (list* outer inners))
+(defn all-face-paths [f] f)
 (defn face-boundary [f] (first f))
+
+(defn- extrude-direction [f]
+  (let [[[e00 e01] [_ e11]] (face-boundary f)
+        v1 (o/- e01 e00)
+        v2 (o/- e11 e01)]
+    (m/normalise (m/cross v2 v1))))
+
+
+(defn- extrude [face amt]
+  (let [paths (all-face-paths face)
+        points []
+        dir (extrude-direction points)
+        vdir (o/* dir amt)]
+    (concat
+     (for [[p1 p2]
+           (take (count points)
+                 (partition 2 1 (cycle points)))]
+       [p1 p2 (o/+ vdir p2) (o/+ vdir p1)])
+     [points
+      (map (partial o/+ vdir) points)])))
+
 
 (fact                               "I can write long and interesting
                                      facts on the side margin, making
@@ -68,27 +90,27 @@
          count) => 3
     (->> (face p1 p2)
          face-boundary
-         count) => 3))
+         count) => 3
+
+    (fact                           "I can get the correct normal to a
+                                     horizontal face."
+      (->> p1
+           face
+           extrude-direction
+           (map #(Math/abs %))) => [0.0 0.0 1.0])
+
+    (fact                           "I can extrude a face, turning all
+                                     edges into faces and adding a
+                                     'top' face."
+      ;; (-> p1
+      ;;     face
+      ;;     (extrude 3))
+      )))
+
+
 
 
 ;; WIP: finish adapting these to point/edge/path/face model:
-
-(defn- extrude-direction [face-points]
-  (let [[p1 p2 p3] face-points
-        v1 (o/- p2 p1)
-        v2 (o/- p3 p1)]
-    (m/normalise (m/cross v2 v1))))
-
-(defn- extrude [points amt]
-  (let [dir (extrude-direction points)
-        vdir (o/* dir amt)]
-    (concat
-     (for [[p1 p2]
-           (take (count points)
-                 (partition 2 1 (cycle points)))]
-       [p1 p2 (o/+ vdir p2) (o/+ vdir p1)])
-     [points
-      (map (partial o/+ vdir) points)])))
 
 
 (defn- split-edge [[p1 p2] amt]
@@ -97,24 +119,25 @@
      (o/- p2 del)]))
 
 
-#_((defn- split-rect [face edge-index-0 edge-index-1 amt0 amt1])
- [[0 0 0] [1 0 0] [1 1 0] [0 1 0]])
+;; #_((defn- split-rect [face edge-index-0 edge-index-1 amt0 amt1])
+;;  [[0 0 0] [1 0 0] [1 1 0] [0 1 0]])
 
 
-(let [base [[0 0 0]
-            [0 1000 0]
-            [1000 1000 0]
-            [1000 0 0]]
-      cube (extrude base 1000)]
-  cube)
+(comment
+  (let [base [[0 0 0]
+              [0 1000 0]
+              [1000 1000 0]
+              [1000 0 0]]
+        cube (extrude base 1000)]
+    cube)
 
-;;=>
-[[[0 0 0] [0 1000 0] [0.0 1000.0 1000.0] [0.0 0.0 1000.0]]
- [[0 1000 0] [1000 1000 0] [1000.0 1000.0 1000.0] [0.0 1000.0 1000.0]]
- [[1000 1000 0] [1000 0 0] [1000.0 0.0 1000.0] [1000.0 1000.0 1000.0]]
- [[1000 0 0] [0 0 0] [0.0 0.0 1000.0] [1000.0 0.0 1000.0]]
- [[0 0 0] [0 1000 0] [1000 1000 0] [1000 0 0]]
- [[0.0 0.0 1000.0]
-  [0.0 1000.0 1000.0]
-  [1000.0 1000.0 1000.0]
-  [1000.0 0.0 1000.0]]]
+  ;;=>
+  [[[0 0 0] [0 1000 0] [0.0 1000.0 1000.0] [0.0 0.0 1000.0]]
+   [[0 1000 0] [1000 1000 0] [1000.0 1000.0 1000.0] [0.0 1000.0 1000.0]]
+   [[1000 1000 0] [1000 0 0] [1000.0 0.0 1000.0] [1000.0 1000.0 1000.0]]
+   [[1000 0 0] [0 0 0] [0.0 0.0 1000.0] [1000.0 0.0 1000.0]]
+   [[0 0 0] [0 1000 0] [1000 1000 0] [1000 0 0]]
+   [[0.0 0.0 1000.0]
+    [0.0 1000.0 1000.0]
+    [1000.0 1000.0 1000.0]
+    [1000.0 0.0 1000.0]]])
