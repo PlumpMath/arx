@@ -9,4 +9,5 @@
   :dependencies [[org.clojure/clojure "1.6.0"]
                  [quil/quil "2.2.1"]
                  [midje "1.6.3"]
-                 [net.mikera/core.matrix "0.30.0"]])
+                 [net.mikera/core.matrix "0.30.0"]]
+  :profiles {:dev {:plugins [[lein-midje "3.0.0"]]}})
