@@ -30,8 +30,8 @@
     (add-wide-box)))
 
 (defn add-enough-boxes []
-  (while (or (< (count @boxes) 1000)
-             (< (q/random 1) 0.03))
+  (while (or (< (count @boxes) 100)
+             (< (q/random 1) 0.01))
     (add-either-box)))
 
 
