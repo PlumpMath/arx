@@ -138,29 +138,29 @@
   (draw-wierd-vertices)
   (draw-pyramid)
   #_(draw-faces [[    0    0    0
-                    0 1000    0
-                 1000 1000    0
-                 1000    0    0]
-               [    0    0 1000
-                    0 1000 1000
-                 1000 1000 1000
-                 1000    0 1000]
-               [    0    0    0
-                    0    0 1000
-                    0 1000 1000
-                    0 1000    0]
-               [ 1000    0    0
-                 1000    0 1000
-                 1000 1000 1000
-                 1000 1000    0]
-               [    0    0    0
-                    0    0 1000
-                 1000    0 1000
-                 1000    0    0]
-               [    0 1000    0
-                    0 1000 1000
-                 1000 1000 1000
-                 1000 1000    0]])
+                  0 1000    0
+                  1000 1000    0
+                  1000    0    0]
+                 [    0    0 1000
+                  0 1000 1000
+                  1000 1000 1000
+                  1000    0 1000]
+                 [    0    0    0
+                  0    0 1000
+                  0 1000 1000
+                  0 1000    0]
+                 [ 1000    0    0
+                  1000    0 1000
+                  1000 1000 1000
+                  1000 1000    0]
+                 [    0    0    0
+                  0    0 1000
+                  1000    0 1000
+                  1000    0    0]
+                 [    0 1000    0
+                  0 1000 1000
+                  1000 1000 1000
+                  1000 1000    0]])
 
   (if (g/do-sphere)
     (q/sphere 10000)))
@@ -183,15 +183,23 @@
 
 
 (defn update-camera []
-  (update :phi (partial + (q/radians 0.10)))
+  (update :phi (partial + (q/radians 0.05)))
   (assign :target-r (+ 5000
-                       (* 2000 (Math/sin (* 0.0002 (getk :t))))))
+                       (* 2000 (Math/sin (* 0.0001 (getk :t))))))
   (assign :target-theta (+ (q/radians 65) (* (q/radians 10)
-                                             (Math/sin (* 0.0005 (getk :t))))))
+                                             (Math/sin (* 0.0001 (getk :t))))))
   (let [del-theta (* 0.01 (- (getk :target-theta) (getk :theta)))
         del-r (* 0.005 (- (getk :target-r) (getk :r)))]
     (swap! (q/state-atom) update-in [:theta] (partial + del-theta))
     (swap! (q/state-atom) update-in [:r] (partial + del-r))))
+
+
+(defn update-loop [t0]
+  (assign :t (- (System/currentTimeMillis) t0))
+  (when-not (paused)
+    (update-camera))
+  (g/add-enough-boxes)
+  (Thread/sleep 40))
 
 
 (defn setup []
@@ -204,11 +212,7 @@
                 :paused false)
   (let [t0 (System/currentTimeMillis)]
     (future (while true
-              (assign :t (- (System/currentTimeMillis) t0))
-              (when-not (paused)
-                (update-camera))
-              (g/add-enough-boxes)
-              (Thread/sleep 30)))))
+              (update-loop t0)))))
 
 
 (defn -main []
@@ -216,7 +220,7 @@
     :title ""
     :setup setup
     :draw draw
-    :size [1600 1000]
+    :size [1200 900]
     :key-typed key-press
     :mouse-dragged mouse-dragged
     :mouse-wheel mouse-wheel
