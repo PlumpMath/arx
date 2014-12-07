@@ -7,6 +7,6 @@
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :dependencies [[org.clojure/clojure "1.6.0"]
-                 [quil/quil "2.2.1"]
+                 [quil/quil "2.2.4"]
                  [midje "1.6.3"]
-                 [net.mikera/core.matrix "0.30.0"]])
+                 [net.mikera/core.matrix "0.31.1"]])
